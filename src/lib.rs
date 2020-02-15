@@ -15,6 +15,8 @@
    limitations under the License.
 */
 
+#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.0")]
+
 //! Translate between 1D indices and 2D coordinates with wrapping.
 //! Use WrappingCoords2d to store data from a 2D grid into a 1D container such as `std::vec::Vec`.
 //! This is not a container; it is just a tool to manipulate indices. For a 2D container, see [`array2d`]: https://docs.rs/array2d/0.2.1/array2d/
@@ -115,6 +117,42 @@ impl WrappingCoords2d {
         } else {
             Err(ErrorKind::IndicesLessThan1)
         }
+    }
+    /// Returns the width of the grid.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// assert_eq!(w2d.width(), 10);
+    /// ```
+    pub fn width(&self) -> i32 {
+        self.w
+    }
+    /// Returns the height of the grid.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// assert_eq!(w2d.height(), 10);
+    /// ```
+    pub fn height(&self) -> i32 {
+        self.h
+    }
+    /// Returns the total number of cells in the grid.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// assert_eq!(w2d.size(), 100);
+    /// ```
+    pub fn size(&self) -> i32 {
+        self.sz
     }
     /// Returns the Euclidean modulo, a non-negative number. This operation is also available in the `DivRem` crate.
     /// In contrast, the standard modulo operator can be negative; for example, `-11 % 10 = -1`.
