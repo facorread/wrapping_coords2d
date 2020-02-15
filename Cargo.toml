@@ -10,6 +10,7 @@ exclude = [
     ".gitlab*",
 ]
 license = "Apache-2.0"
+readme = "README.md"
 repository = "https://github.com/facorread/WrappingCoords2d"
 keywords = ["index", "indices", "2d", "coordinates", "matrix"]
 
