@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.0")]
+#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.1")]
 
 //! Translate between 1D indices and 2D coordinates with wrapping.
 //! Use WrappingCoords2d to store data from a 2D grid into a 1D container such as `std::vec::Vec`.

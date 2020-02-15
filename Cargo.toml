@@ -1,6 +1,6 @@
 [package]
 name = "wrapping_coords2d"
-version = "0.1.0" # remember to update html_root_url
+version = "0.1.1" # remember to update html_root_url
 authors = ["Fabio A. Correa Duran <facorread@gmail.com>"]
 categories = ["caching", "memory-management"]
 description = "Translate between 1D indices and 2D coordinates with wrapping"
