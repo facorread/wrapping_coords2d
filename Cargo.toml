@@ -5,6 +5,10 @@ authors = ["Fabio A. Correa Duran <facorread@gmail.com>"]
 categories = ["caching", "memory-management"]
 description = "Translate between 1D indices and 2D coordinates with wrapping"
 edition = "2018"
+exclude = [
+    ".github/*",
+    ".gitlab*",
+]
 license = "Apache-2.0"
 repository = "https://github.com/facorread/WrappingCoords2d"
 keywords = ["index", "indices", "grid2d", "wrapping", "coordinates", "matrix"]
