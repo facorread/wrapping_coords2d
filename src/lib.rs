@@ -15,14 +15,18 @@
    limitations under the License.
 */
 
-#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.1")]
+#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.2")]
 
 //! Translate between 1D indices and 2D coordinates with wrapping.
-//! Use WrappingCoords2d to store data from a 2D grid into a 1D container such as `std::vec::Vec`.
-//! This is not a container; it is just a tool to manipulate indices. For a 2D container, see [`array2d`](https://docs.rs/array2d/0.2.1/array2d/).
-//! For coordinate translation without wrapping, see [`ameda`](https://docs.rs/ameda/0.1.1/ameda/).
 //! 
-//! WrappingCoords2d is useful to design cellular automata and agent-based models. See my [ABM project](https://github.com/facorread/rust-agent-based-models).
+//! Use WrappingCoords2d to store data from a 2D grid into a 1D container such as `std::vec::Vec`.
+//! Both x and y coordinates wrap around through the limits of the grid. WrappingCoords2d is not a container;
+//! it is just a tool to manipulate indices. For a 2D container, see [`array2d`](https://docs.rs/array2d/latest/array2d/).
+//! For coordinate translation without wrapping, see [`ameda`](https://docs.rs/ameda/latest/ameda).
+//! 
+//! WrappingCoords2d is useful to design cellular automata and agent-based models.
+//! You can use WrappingCoords2d as part of an [Entity-Component-System (ECS)](https://en.wikipedia.org/wiki/Entity_component_system)
+//! software architecture. See my [ABM project](https://github.com/facorread/rust-agent-based-models) for an example.
 //! 
 //! Index operations wrap around in both dimensions. See the examples below.
 //!
