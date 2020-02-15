@@ -5,4 +5,4 @@ Use WrappingCoords2d to store data from a 2D grid into a 1D container such as `s
 
 WrappingCoords2d is useful to design cellular automata and agent-based models. Just like my [ABM project](https://github.com/facorread/rust-agent-based-models), WrappingCoords2d enables you to use the Entity-Component-System (ECS) software architecture.
 
-Index operations wrap around in both dimensions. See the examples in the documentation for [`WrappingCoords2d`](https://docs.rs/WrappingCoords2d/latest/WrappingCoords2d/).
+Index operations wrap around in both dimensions. See the examples in the documentation for [`WrappingCoords2d`](https://docs.rs/wrapping-coords2d/latest/wrapping-coords2d/).
