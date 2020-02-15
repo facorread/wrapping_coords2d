@@ -11,7 +11,7 @@ exclude = [
 ]
 license = "Apache-2.0"
 repository = "https://github.com/facorread/WrappingCoords2d"
-keywords = ["index", "indices", "grid2d", "wrapping", "coordinates", "matrix"]
+keywords = ["index", "indices", "2d", "coordinates", "matrix"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
