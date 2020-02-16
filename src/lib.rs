@@ -15,21 +15,22 @@
    limitations under the License.
 */
 
-#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.2")]
+#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.3")]
 
 //! Translate between 1D indices and 2D coordinates with wrapping.
 //! 
-//! Use WrappingCoords2d to store data from a 2D grid into a 1D container such as `std::vec::Vec`.
-//! Both x and y coordinates wrap around through the limits of the grid. WrappingCoords2d is not a container;
-//! it is just a tool to manipulate indices. For a 2D container, see [`array2d`](https://docs.rs/array2d/latest/array2d/).
+//! Use [`WrappingCoords2d`](https://docs.rs/wrapping_coords2d/latest/wrapping_coords2d/struct.WrappingCoords2d.html)
+//! to store data from a 2D grid into a 1D container such as `std::vec::Vec`.
+//! Both x and y coordinates wrap around the limits of the grid.
+//! `WrappingCoords2d` is not a container; it is just a tool to manipulate indices.
+//! For a 2D container, see [`array2d`](https://docs.rs/array2d/latest/array2d/).
 //! For coordinate translation without wrapping, see [`ameda`](https://docs.rs/ameda/latest/ameda).
 //! 
-//! WrappingCoords2d is useful to design cellular automata and agent-based models.
-//! You can use WrappingCoords2d as part of an [Entity-Component-System (ECS)](https://en.wikipedia.org/wiki/Entity_component_system)
-//! software architecture. See my [ABM project](https://github.com/facorread/rust-agent-based-models) for an example.
+//! `WrappingCoords2d` is useful to design cellular automata and agent-based models.
+//! You can use `WrappingCoords2d` as part of an [Entity-Component-System (ECS)](https://en.wikipedia.org/wiki/Entity_component_system)
+//! software architecture for high-performing, flexible models.
+//! See my [ABM project](https://github.com/facorread/rust-agent-based-models) for an example.
 //! 
-//! Index operations wrap around in both dimensions. See the examples below.
-//!
 //! # Examples
 //!
 //! ```
@@ -146,19 +147,32 @@ impl WrappingCoords2d {
     pub fn height(&self) -> i32 {
         self.h
     }
-    /// Returns the total number of cells in the grid.
-    /// 
+    /// Returns the total number of cells in the grid. Use this to initialize 1D containers.
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
-    /// assert_eq!(w2d.size(), 100);
+    /// assert_eq!(w2d.size(), 100 as usize);
     /// ```
-    pub fn size(&self) -> i32 {
+    pub fn size(&self) -> usize {
+        self.sz as usize
+    }
+    /// Returns the total number of cells in the grid as an `i32` number.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// assert_eq!(w2d.size32(), 100);
+    /// ```
+    pub fn size32(&self) -> i32 {
         self.sz
     }
-    /// Returns the Euclidean modulo, a non-negative number. This operation is also available in the `DivRem` crate.
+    /// Returns the Euclidean modulo, a non-negative number.
+    /// This operation is also available in the [`DivRem`](https://crates.io/crates/divrem) crate.
     /// In contrast, the standard modulo operator can be negative; for example, `-11 % 10 = -1`.
     /// 
     /// Examples
@@ -251,11 +265,12 @@ impl WrappingCoords2d {
         let idx32 = idx as i32; // Always positive
         (idx32 % self.w, idx32 / self.h)
     }
-    /// Returns a new index into the grid based on a starting index start_idx, an x offset, and a y offset. x and y can be negative.
+    /// Returns a new index into the grid based on a starting index `start_idx`, an x offset, and a y offset.
+    /// `delta_x` and `delta_y` can be negative.
     /// 
     /// # Safety
     /// 
-    /// This function does not check that start_idx is a valid index.
+    /// This function does not check that start_idx is a valid index. However, it returns a valid index in the range [0, size).
     /// 
     /// # Examples
     /// 
