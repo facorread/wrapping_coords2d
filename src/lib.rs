@@ -196,13 +196,6 @@ impl WrappingCoords2d {
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
-    /// // Here are some basic coordinates:
-    /// assert_eq!(w2d.coords(0), (0, 0));
-    /// assert_eq!(w2d.coords(1), (1, 0));
-    /// assert_eq!(w2d.coords(10), (0, 1));
-    /// assert_eq!(w2d.coords(11), (1, 1));
-    /// assert_eq!(w2d.coords(90), (0, 9));
-    /// assert_eq!(w2d.coords(91), (1, 9));
     /// // Here are the cell at (5, 9) and its 8 neighbors, counterclockwise, starting from the right neighbor:
     /// assert_eq!(w2d.index(5, 9), 95);
     /// assert_eq!(w2d.index(6, 9), 96);
@@ -223,24 +216,6 @@ impl WrappingCoords2d {
     /// assert_eq!(w2d.index(-1, -1), 99);
     /// assert_eq!(w2d.index(0, -1), 90);
     /// assert_eq!(w2d.index(1, -1), 91);
-    /// // Here are the 8 neighbors of the cell at (5, 9), counterclockwise, starting from the right neighbor:
-    /// assert_eq!(w2d.shift(95, 1, 0), 96);
-    /// assert_eq!(w2d.shift(95, 1, 1), 6);
-    /// assert_eq!(w2d.shift(95, 0, 1), 5);
-    /// assert_eq!(w2d.shift(95, -1, 1), 4);
-    /// assert_eq!(w2d.shift(95, -1, 0), 94);
-    /// assert_eq!(w2d.shift(95, -1, -1), 84);
-    /// assert_eq!(w2d.shift(95, 0, -1), 85);
-    /// assert_eq!(w2d.shift(95, 1, -1), 86);
-    /// // Here are the 8 neighbors of the cell at (0, 0), counterclockwise, starting from the right neighbor:
-    /// assert_eq!(w2d.shift(0, 1, 0), 1);
-    /// assert_eq!(w2d.shift(0, 1, 1), 11);
-    /// assert_eq!(w2d.shift(0, 0, 1), 10);
-    /// assert_eq!(w2d.shift(0, -1, 1), 19);
-    /// assert_eq!(w2d.shift(0, -1, 0), 9);
-    /// assert_eq!(w2d.shift(0, -1, -1), 99);
-    /// assert_eq!(w2d.shift(0, 0, -1), 90);
-    /// assert_eq!(w2d.shift(0, 1, -1), 91);
     /// ```
     pub fn index(&self, x: i32, y: i32) -> usize {
         let mx = WrappingCoords2d::modulo(x, self.w);
