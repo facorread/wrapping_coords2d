@@ -1,6 +1,6 @@
 [package]
 name = "wrapping_coords2d"
-version = "0.1.3" # remember to update html_root_url
+version = "0.1.4" # remember to update html_root_url
 authors = ["Fabio A. Correa Duran <facorread@gmail.com>"]
 categories = ["caching", "memory-management"]
 description = "Translate between 1D indices and 2D coordinates with wrapping"
@@ -17,3 +17,10 @@ keywords = ["index", "indices", "2d", "coordinates", "matrix"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[badges]
+gitlab = { repository = "facorread/wrappingcoords2d"}
+travis-ci = { repository = "facorread/WrappingCoords2d"}
+maintenance = { status = "passively-maintained" }
+is-it-maintained-issue-resolution = { repository = "facorread/WrappingCoords2d" }
+is-it-maintained-open-issues = { repository = "facorread/WrappingCoords2d" }

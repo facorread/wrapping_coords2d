@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.3")]
+#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.4")]
 
 //! Translate between 1D indices and 2D coordinates with wrapping.
 //! 
