@@ -245,7 +245,7 @@ impl WrappingCoords2d {
     /// 
     /// # Safety
     /// 
-    /// This function does not check that start_idx is a valid index. However, it returns a valid index in the range [0, size).
+    /// This function does not check that `start_idx` is a valid index. However, it returns a valid index in the range [0, size).
     /// 
     /// # Examples
     /// 
@@ -279,6 +279,237 @@ impl WrappingCoords2d {
         let yw = idx - x; // yw: The y coordinate times the width; always positive
         let new_yw = WrappingCoords2d::modulo(yw + delta_y * self.w, self.sz); // Positive number
         (new_yw + new_x) as usize
+    }
+    /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 4 neighbors,
+    /// the so-called von Neumann neighborhood or 4-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the neighbor to the right.
+    /// 
+    /// # Safety
+    /// 
+    /// This function does not check that `start_idx` is a valid index. However, it returns a valid index in the range [0, size).
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// // Here are the 4 neighbors of the cell at (5, 9), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors4(95), vec![96, 5, 94, 85]);
+    /// // Here are the 4 neighbors of the cell at (0, 0), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors4(0), vec![1, 10, 9, 90]);
+    /// ```
+    pub fn neighbors4(&self, start_idx: usize) -> std::vec::Vec<usize> {
+        // Note: -11 % 10 = -1
+        let idx = start_idx as i32;
+        let x = idx % self.w; // Always positive
+        let yw = idx - x; // yw: The y coordinate times the width; always positive
+        let mut result32 = vec![x; 4];
+        result32[0] = (x + 1) % self.w + yw; // Neighbor to the right; modulo is always positive
+        result32[1] = (idx + self.w) % self.sz; // Neighbor above; modulo is always positive
+        result32[2] = WrappingCoords2d::modulo(x - 1, self.w) + yw; // Neighbor to the left
+        result32[3] = WrappingCoords2d::modulo(idx - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32.into_iter().map(|idx| idx as usize).collect()
+    }
+    /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 4 neighbors,
+    /// the so-called von Neumann neighborhood or 4-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the neighbor to the right.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// // Here are the 4 neighbors of the cell at (5, 9), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors4xy(5, 9), vec![96, 5, 94, 85]);
+    /// // Here are the 4 neighbors of the cell at (0, 0), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors4xy(0, 0), vec![1, 10, 9, 90]);
+    /// ```
+    pub fn neighbors4xy(&self, start_x: i32, start_y: i32) -> std::vec::Vec<usize> {
+        self.neighbors4(self.index(start_x, start_y))
+    }
+    /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 8 neighbors,
+    /// the so-called Moore neighborhood or 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the neighbor to the right.
+    /// 
+    /// # Safety
+    /// 
+    /// This function does not check that `start_idx` is a valid index. However, it returns a valid index in the range [0, size).
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// // Here are the 8 neighbors of the cell at (5, 9), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors8(95), vec![96, 6, 5, 4, 94, 84, 85, 86]);
+    /// // Here are the 8 neighbors of the cell at (0, 0), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors8(0), vec![1, 11, 10, 19, 9, 99, 90, 91]);
+    /// ```
+    pub fn neighbors8(&self, start_idx: usize) -> std::vec::Vec<usize> {
+        // Note: -11 % 10 = -1
+        let idx = start_idx as i32;
+        let x = idx % self.w; // Always positive
+        let yw = idx - x; // yw: The y coordinate times the width; always positive
+        let idxr1 = (x + 1) % self.w + yw; // Index of the first neighbor, the one to the right; modulo is always positive
+        let idxl1 = WrappingCoords2d::modulo(x - 1, self.w) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
+        let mut result32 = vec![idxr1; 8];
+        result32[1] = (idxr1 + self.w) % self.sz; // Neighbor above; modulo is always positive
+        result32[2] = (idx + self.w) % self.sz; // Neighbor above; modulo is always positive
+        result32[3] = (idxl1 + self.w) % self.sz; // Neighbor above; modulo is always positive
+        result32[4] = idxl1;
+        result32[5] = WrappingCoords2d::modulo(idxl1 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[6] = WrappingCoords2d::modulo(idx - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[7] = WrappingCoords2d::modulo(idxr1 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32.into_iter().map(|idx| idx as usize).collect()
+    }
+    /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 8 neighbors,
+    /// the so-called Moore neighborhood or 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the neighbor to the right.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// // Here are the 8 neighbors of the cell at (5, 9), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors8xy(5, 9), vec![96, 6, 5, 4, 94, 84, 85, 86]);
+    /// // Here are the 8 neighbors of the cell at (0, 0), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors8xy(0, 0), vec![1, 11, 10, 19, 9, 99, 90, 91]);
+    /// ```
+    pub fn neighbors8xy(&self, start_x: i32, start_y: i32) -> std::vec::Vec<usize> {
+        self.neighbors8(self.index(start_x, start_y))
+    }
+    /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 16 second neighbors,
+    /// which are adjacent to the cell's 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the second neighbor located two cells to the right.
+    /// 
+    /// # Safety
+    /// 
+    /// This function does not check that `start_idx` is a valid index. However, it returns a valid index in the range [0, size).
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// // Here are the 16 second neighbors of the cell at (5, 9), counterclockwise, starting from the right:
+    /// assert_eq!(w2d.neighbors16(95), vec![97, 7, 17, 16, 15, 14, 13, 3, 93, 83, 73, 74, 75, 76, 77, 87]);
+    /// // Here are the 16 second neighbors of the cell at (0, 0), counterclockwise, starting from the right:
+    /// assert_eq!(w2d.neighbors16(0), vec![2, 12, 22, 21, 20, 29, 28, 18, 8, 98, 88, 89, 80, 81, 82, 92]);
+    /// ```
+    pub fn neighbors16(&self, start_idx: usize) -> std::vec::Vec<usize> {
+        // Note: -11 % 10 = -1
+        let idx = start_idx as i32;
+        let x = idx % self.w; // Always positive
+        let yw = idx - x; // yw: The y coordinate times the width; always positive
+        let idxr2 = (x + 2) % self.w + yw; // Index of the first neighbor, the one to the right; modulo is always positive
+        let idxr1 = (x + 1) % self.w + yw; // Index of the first neighbor, the one to the right; modulo is always positive
+        let idxl1 = WrappingCoords2d::modulo(x - 1, self.w) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
+        let idxl2 = WrappingCoords2d::modulo(x - 2, self.w) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
+        let mut result32 = vec![idxr2; 16];
+        result32[1] = (idxr2 + self.w) % self.sz;
+        result32[2] = (idxr2 + 2 * self.w) % self.sz;
+        result32[3] = (idxr1 + 2 * self.w) % self.sz;
+        result32[4] = (idx + 2 * self.w) % self.sz;
+        result32[5] = (idxl1 + 2 * self.w) % self.sz;
+        result32[6] = (idxl2 + 2 * self.w) % self.sz;
+        result32[7] = (idxl2 + self.w) % self.sz;
+        result32[8] = idxl2;
+        result32[9] = WrappingCoords2d::modulo(idxl2 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[10] = WrappingCoords2d::modulo(idxl2 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[11] = WrappingCoords2d::modulo(idxl1 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[12] = WrappingCoords2d::modulo(idx - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[13] = WrappingCoords2d::modulo(idxr1 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[14] = WrappingCoords2d::modulo(idxr2 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[15] = WrappingCoords2d::modulo(idxr2 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32.into_iter().map(|idx| idx as usize).collect()
+    }
+    /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 16 second neighbors,
+    /// which are adjacent to the cell's 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the second neighbor located two cells to the right.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// // Here are the 16 neighbors of the cell at (5, 9), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors16xy(5, 9), vec![97, 7, 17, 16, 15, 14, 13, 3, 93, 83, 73, 74, 75, 76, 77, 87]);
+    /// // Here are the 16 neighbors of the cell at (0, 0), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors16xy(0, 0), vec![2, 12, 22, 21, 20, 29, 28, 18, 8, 98, 88, 89, 80, 81, 82, 92]);
+    /// ```
+    pub fn neighbors16xy(&self, start_x: i32, start_y: i32) -> std::vec::Vec<usize> {
+        self.neighbors16(self.index(start_x, start_y))
+    }
+    /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 24 nearest neighbors.
+    /// The indices are ordered in 2D, counter-clockwise, starting with the cell to the right, going through the
+    /// Moore neighborhood first, and then going through the second neighbors.
+    /// 
+    /// # Safety
+    /// 
+    /// This function does not check that `start_idx` is a valid index. However, it returns a valid index in the range [0, size).
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// // Here are the 24 second neighbors of the cell at (5, 9), counterclockwise, starting from the right:
+    /// assert_eq!(w2d.neighbors24(95), vec![96, 6, 5, 4, 94, 84, 85, 86, 97, 7, 17, 16, 15, 14, 13, 3, 93, 83, 73, 74, 75, 76, 77, 87]);
+    /// // Here are the 24 second neighbors of the cell at (0, 0), counterclockwise, starting from the right:
+    /// assert_eq!(w2d.neighbors24(0), vec![1, 11, 10, 19, 9, 99, 90, 91, 2, 12, 22, 21, 20, 29, 28, 18, 8, 98, 88, 89, 80, 81, 82, 92]);
+    /// ```
+    pub fn neighbors24(&self, start_idx: usize) -> std::vec::Vec<usize> {
+        // Note: -11 % 10 = -1
+        let idx = start_idx as i32;
+        let x = idx % self.w; // Always positive
+        let yw = idx - x; // yw: The y coordinate times the width; always positive
+        let idxr2 = (x + 2) % self.w + yw; // Index of the first neighbor, the one to the right; modulo is always positive
+        let idxr1 = (x + 1) % self.w + yw; // Index of the first neighbor, the one to the right; modulo is always positive
+        let idxl1 = WrappingCoords2d::modulo(x - 1, self.w) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
+        let idxl2 = WrappingCoords2d::modulo(x - 2, self.w) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
+        let mut result32 = vec![idxr1; 24];
+        result32[1] = (idxr1 + self.w) % self.sz; // Neighbor above; modulo is always positive
+        result32[2] = (idx + self.w) % self.sz; // Neighbor above; modulo is always positive
+        result32[3] = (idxl1 + self.w) % self.sz; // Neighbor above; modulo is always positive
+        result32[4] = idxl1;
+        result32[5] = WrappingCoords2d::modulo(idxl1 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[6] = WrappingCoords2d::modulo(idx - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[7] = WrappingCoords2d::modulo(idxr1 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[8] = idxr2;
+        result32[9] = (idxr2 + self.w) % self.sz;
+        result32[10] = (idxr2 + 2 * self.w) % self.sz;
+        result32[11] = (idxr1 + 2 * self.w) % self.sz;
+        result32[12] = (idx + 2 * self.w) % self.sz;
+        result32[13] = (idxl1 + 2 * self.w) % self.sz;
+        result32[14] = (idxl2 + 2 * self.w) % self.sz;
+        result32[15] = (idxl2 + self.w) % self.sz;
+        result32[16] = idxl2;
+        result32[17] = WrappingCoords2d::modulo(idxl2 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[18] = WrappingCoords2d::modulo(idxl2 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[19] = WrappingCoords2d::modulo(idxl1 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[20] = WrappingCoords2d::modulo(idx - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[21] = WrappingCoords2d::modulo(idxr1 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[22] = WrappingCoords2d::modulo(idxr2 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[23] = WrappingCoords2d::modulo(idxr2 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32.into_iter().map(|idx| idx as usize).collect()
+    }
+    /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 24 nearest neighbors.
+    /// The indices are ordered in 2D, counter-clockwise, starting with the cell to the right, going through the
+    /// Moore neighborhood first, and then going through the second neighbors.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// // Here are the 24 neighbors of the cell at (5, 9), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors24xy(5, 9), vec![96, 6, 5, 4, 94, 84, 85, 86, 97, 7, 17, 16, 15, 14, 13, 3, 93, 83, 73, 74, 75, 76, 77, 87]);
+    /// // Here are the 24 neighbors of the cell at (0, 0), counterclockwise, starting from the right neighbor:
+    /// assert_eq!(w2d.neighbors24xy(0, 0), vec![1, 11, 10, 19, 9, 99, 90, 91, 2, 12, 22, 21, 20, 29, 28, 18, 8, 98, 88, 89, 80, 81, 82, 92]);
+    /// ```
+    pub fn neighbors24xy(&self, start_x: i32, start_y: i32) -> std::vec::Vec<usize> {
+        self.neighbors24(self.index(start_x, start_y))
     }
 }
 
@@ -408,6 +639,10 @@ mod tests {
                 g.shift(idx1, 200000, -200000),
                 g.index(x1 + 200000, y1 - 200000)
             );
+            assert_eq!(g.neighbors4(idx1), vec![g.index(x1 + 1, y1), g.index(x1, y1 + 1), g.index(x1 - 1, y1), g.index(x1, y1 - 1)]);
+            assert_eq!(g.neighbors8(idx1), vec![g.index(x1 + 1, y1), g.index(x1 + 1, y1 + 1), g.index(x1, y1 + 1), g.index(x1 - 1, y1 + 1), g.index(x1 - 1, y1), g.index(x1 - 1, y1 - 1), g.index(x1, y1 - 1), g.index(x1 + 1, y1 - 1)]);
+            assert_eq!(g.neighbors16(idx1), vec![g.index(x1 + 2, y1), g.index(x1 + 2, y1 + 1), g.index(x1 + 2, y1 + 2), g.index(x1 + 1, y1 + 2), g.index(x1, y1 + 2), g.index(x1 - 1, y1 + 2), g.index(x1 - 2, y1 + 2), g.index(x1 - 2, y1 + 1), g.index(x1 - 2, y1), g.index(x1 - 2, y1 - 1), g.index(x1 - 2, y1 - 2), g.index(x1 - 1, y1 - 2), g.index(x1, y1 - 2), g.index(x1 + 1, y1 - 2), g.index(x1 + 2, y1 - 2), g.index(x1 + 2, y1 - 1)]);
+            assert_eq!(g.neighbors24(idx1), vec![g.index(x1 + 1, y1), g.index(x1 + 1, y1 + 1), g.index(x1, y1 + 1), g.index(x1 - 1, y1 + 1), g.index(x1 - 1, y1), g.index(x1 - 1, y1 - 1), g.index(x1, y1 - 1), g.index(x1 + 1, y1 - 1), g.index(x1 + 2, y1), g.index(x1 + 2, y1 + 1), g.index(x1 + 2, y1 + 2), g.index(x1 + 1, y1 + 2), g.index(x1, y1 + 2), g.index(x1 - 1, y1 + 2), g.index(x1 - 2, y1 + 2), g.index(x1 - 2, y1 + 1), g.index(x1 - 2, y1), g.index(x1 - 2, y1 - 1), g.index(x1 - 2, y1 - 2), g.index(x1 - 1, y1 - 2), g.index(x1, y1 - 2), g.index(x1 + 1, y1 - 2), g.index(x1 + 2, y1 - 2), g.index(x1 + 2, y1 - 1)]);
         }
     }
 }

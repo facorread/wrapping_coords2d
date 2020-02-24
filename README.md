@@ -11,3 +11,9 @@ Use [`WrappingCoords2d`](https://docs.rs/wrapping_coords2d/latest/wrapping_coord
 `WrappingCoords2d` is useful to design cellular automata, agent-based models, and game worlds in 2D and 3D. You can use `WrappingCoords2d` as part of an [Entity-Component-System (ECS)](https://en.wikipedia.org/wiki/Entity_component_system) software architecture for high-performing models and flexible games. See my [ABM project](https://github.com/facorread/rust-agent-based-models) for an example.
 
 See more examples in the documentation for the [`wrapping_coords2d`](https://docs.rs/wrapping_coords2d/latest/wrapping_coords2d/) crate.
+
+# FAQ
+
+## Why not create iterators to the neighbors of a cell?
+
+In an ECS design, indices make more sense than iterators: if a game world or a model landscape has several components, such as color, depth, and fertility, it makes sense to keep each component in its own vector. The simplest approach is to use indices on them. However, I am open to a pull request contributing code for iterators into neighbors.
