@@ -1,4 +1,4 @@
-/* WrappingCoords2d: Translate between 2D coordinates and 1D indices with wrapping
+/* WrappingCoords2d: Rust crate to translate between 1D indices and 2D coordinates with wrapping https://crates.io/crates/wrapping_coords2d
 
     Copyright 2020 Fabio A. Correa Duran facorread@gmail.com
 
@@ -17,7 +17,7 @@
 
 #![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.5")]
 
-//! Translate between 1D indices and 2D coordinates with wrapping.
+//! Rust crate to translate between 1D indices and 2D coordinates with wrapping https://crates.io/crates/wrapping_coords2d
 //!
 //! Use [`WrappingCoords2d`](https://docs.rs/wrapping_coords2d/latest/wrapping_coords2d/struct.WrappingCoords2d.html)
 //! to store data from a 2D grid into a 1D container such as `std::vec::Vec`.
