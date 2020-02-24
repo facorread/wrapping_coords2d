@@ -18,19 +18,19 @@
 #![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.5")]
 
 //! Translate between 1D indices and 2D coordinates with wrapping.
-//! 
+//!
 //! Use [`WrappingCoords2d`](https://docs.rs/wrapping_coords2d/latest/wrapping_coords2d/struct.WrappingCoords2d.html)
 //! to store data from a 2D grid into a 1D container such as `std::vec::Vec`.
 //! Both x and y coordinates wrap around the limits of the grid.
 //! `WrappingCoords2d` is not a container; it is just a tool to manipulate indices.
 //! For a 2D container, see [`array2d`](https://docs.rs/array2d/latest/array2d/).
 //! For coordinate translation without wrapping, see [`ameda`](https://docs.rs/ameda/latest/ameda).
-//! 
+//!
 //! `WrappingCoords2d` is useful to design cellular automata and agent-based models.
 //! You can use `WrappingCoords2d` as part of an [Entity-Component-System (ECS)](https://en.wikipedia.org/wiki/Entity_component_system)
 //! software architecture for high-performing, flexible models.
 //! See my [ABM project](https://github.com/facorread/rust-agent-based-models) for an example.
-//! 
+//!
 //! # Examples
 //!
 //! ```
@@ -105,9 +105,9 @@ pub struct WrappingCoords2d {
 
 impl WrappingCoords2d {
     /// Constructs a new WrappingCoords2d representation.
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// Both `width` and `height` must be larger than 0. Also, their product must be smaller than `std::i32::MAX`.
     pub fn new(width: i32, height: i32) -> Result<WrappingCoords2d, ErrorKind> {
         if width > 0 && height > 0 {
@@ -124,9 +124,9 @@ impl WrappingCoords2d {
         }
     }
     /// Returns the width of the grid.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -136,9 +136,9 @@ impl WrappingCoords2d {
         self.w
     }
     /// Returns the height of the grid.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -174,9 +174,9 @@ impl WrappingCoords2d {
     /// Returns the Euclidean modulo, a non-negative number.
     /// This operation is also available in the [`DivRem`](https://crates.io/crates/divrem) crate.
     /// In contrast, the standard modulo operator can be negative; for example, `-11 % 10 = -1`.
-    /// 
+    ///
     /// Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// assert_eq!(-11 % 10, -1);
@@ -190,9 +190,9 @@ impl WrappingCoords2d {
         res
     }
     /// Returns an index into the grid based on x and y coordinates.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -223,9 +223,9 @@ impl WrappingCoords2d {
         (myw + mx) as usize
     }
     /// Returns x and y coordinates based on an index into the 1D container.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -242,13 +242,13 @@ impl WrappingCoords2d {
     }
     /// Returns a new index into the grid based on a starting index `start_idx`, an x offset, and a y offset.
     /// `delta_x` and `delta_y` can be negative.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// This function does not check that `start_idx` is a valid index. However, it returns a valid index in the range [0, size).
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -283,13 +283,13 @@ impl WrappingCoords2d {
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 4 neighbors,
     /// the so-called von Neumann neighborhood or 4-neighborhood. The indices are ordered in 2D, counter-clockwise,
     /// starting from the neighbor to the right.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// This function does not check that `start_idx` is a valid index. However, it returns a valid index in the range [0, size).
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -313,9 +313,9 @@ impl WrappingCoords2d {
     /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 4 neighbors,
     /// the so-called von Neumann neighborhood or 4-neighborhood. The indices are ordered in 2D, counter-clockwise,
     /// starting from the neighbor to the right.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -330,13 +330,13 @@ impl WrappingCoords2d {
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 8 neighbors,
     /// the so-called Moore neighborhood or 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
     /// starting from the neighbor to the right.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// This function does not check that `start_idx` is a valid index. However, it returns a valid index in the range [0, size).
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -365,9 +365,9 @@ impl WrappingCoords2d {
     /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 8 neighbors,
     /// the so-called Moore neighborhood or 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
     /// starting from the neighbor to the right.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -382,13 +382,13 @@ impl WrappingCoords2d {
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 16 second neighbors,
     /// which are adjacent to the cell's 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
     /// starting from the second neighbor located two cells to the right.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// This function does not check that `start_idx` is a valid index. However, it returns a valid index in the range [0, size).
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -427,9 +427,9 @@ impl WrappingCoords2d {
     /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 16 second neighbors,
     /// which are adjacent to the cell's 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
     /// starting from the second neighbor located two cells to the right.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -444,13 +444,13 @@ impl WrappingCoords2d {
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 24 nearest neighbors.
     /// The indices are ordered in 2D, counter-clockwise, starting with the cell to the right, going through the
     /// Moore neighborhood first, and then going through the second neighbors.
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// This function does not check that `start_idx` is a valid index. However, it returns a valid index in the range [0, size).
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -497,9 +497,9 @@ impl WrappingCoords2d {
     /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 24 nearest neighbors.
     /// The indices are ordered in 2D, counter-clockwise, starting with the cell to the right, going through the
     /// Moore neighborhood first, and then going through the second neighbors.
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
@@ -639,10 +639,78 @@ mod tests {
                 g.shift(idx1, 200000, -200000),
                 g.index(x1 + 200000, y1 - 200000)
             );
-            assert_eq!(g.neighbors4(idx1), vec![g.index(x1 + 1, y1), g.index(x1, y1 + 1), g.index(x1 - 1, y1), g.index(x1, y1 - 1)]);
-            assert_eq!(g.neighbors8(idx1), vec![g.index(x1 + 1, y1), g.index(x1 + 1, y1 + 1), g.index(x1, y1 + 1), g.index(x1 - 1, y1 + 1), g.index(x1 - 1, y1), g.index(x1 - 1, y1 - 1), g.index(x1, y1 - 1), g.index(x1 + 1, y1 - 1)]);
-            assert_eq!(g.neighbors16(idx1), vec![g.index(x1 + 2, y1), g.index(x1 + 2, y1 + 1), g.index(x1 + 2, y1 + 2), g.index(x1 + 1, y1 + 2), g.index(x1, y1 + 2), g.index(x1 - 1, y1 + 2), g.index(x1 - 2, y1 + 2), g.index(x1 - 2, y1 + 1), g.index(x1 - 2, y1), g.index(x1 - 2, y1 - 1), g.index(x1 - 2, y1 - 2), g.index(x1 - 1, y1 - 2), g.index(x1, y1 - 2), g.index(x1 + 1, y1 - 2), g.index(x1 + 2, y1 - 2), g.index(x1 + 2, y1 - 1)]);
-            assert_eq!(g.neighbors24(idx1), vec![g.index(x1 + 1, y1), g.index(x1 + 1, y1 + 1), g.index(x1, y1 + 1), g.index(x1 - 1, y1 + 1), g.index(x1 - 1, y1), g.index(x1 - 1, y1 - 1), g.index(x1, y1 - 1), g.index(x1 + 1, y1 - 1), g.index(x1 + 2, y1), g.index(x1 + 2, y1 + 1), g.index(x1 + 2, y1 + 2), g.index(x1 + 1, y1 + 2), g.index(x1, y1 + 2), g.index(x1 - 1, y1 + 2), g.index(x1 - 2, y1 + 2), g.index(x1 - 2, y1 + 1), g.index(x1 - 2, y1), g.index(x1 - 2, y1 - 1), g.index(x1 - 2, y1 - 2), g.index(x1 - 1, y1 - 2), g.index(x1, y1 - 2), g.index(x1 + 1, y1 - 2), g.index(x1 + 2, y1 - 2), g.index(x1 + 2, y1 - 1)]);
+            assert_eq!(
+                g.neighbors4(idx1),
+                vec![
+                    g.index(x1 + 1, y1),
+                    g.index(x1, y1 + 1),
+                    g.index(x1 - 1, y1),
+                    g.index(x1, y1 - 1)
+                ]
+            );
+            assert_eq!(
+                g.neighbors8(idx1),
+                vec![
+                    g.index(x1 + 1, y1),
+                    g.index(x1 + 1, y1 + 1),
+                    g.index(x1, y1 + 1),
+                    g.index(x1 - 1, y1 + 1),
+                    g.index(x1 - 1, y1),
+                    g.index(x1 - 1, y1 - 1),
+                    g.index(x1, y1 - 1),
+                    g.index(x1 + 1, y1 - 1)
+                ]
+            );
+            assert_eq!(
+                g.neighbors16(idx1),
+                vec![
+                    g.index(x1 + 2, y1),
+                    g.index(x1 + 2, y1 + 1),
+                    g.index(x1 + 2, y1 + 2),
+                    g.index(x1 + 1, y1 + 2),
+                    g.index(x1, y1 + 2),
+                    g.index(x1 - 1, y1 + 2),
+                    g.index(x1 - 2, y1 + 2),
+                    g.index(x1 - 2, y1 + 1),
+                    g.index(x1 - 2, y1),
+                    g.index(x1 - 2, y1 - 1),
+                    g.index(x1 - 2, y1 - 2),
+                    g.index(x1 - 1, y1 - 2),
+                    g.index(x1, y1 - 2),
+                    g.index(x1 + 1, y1 - 2),
+                    g.index(x1 + 2, y1 - 2),
+                    g.index(x1 + 2, y1 - 1)
+                ]
+            );
+            assert_eq!(
+                g.neighbors24(idx1),
+                vec![
+                    g.index(x1 + 1, y1),
+                    g.index(x1 + 1, y1 + 1),
+                    g.index(x1, y1 + 1),
+                    g.index(x1 - 1, y1 + 1),
+                    g.index(x1 - 1, y1),
+                    g.index(x1 - 1, y1 - 1),
+                    g.index(x1, y1 - 1),
+                    g.index(x1 + 1, y1 - 1),
+                    g.index(x1 + 2, y1),
+                    g.index(x1 + 2, y1 + 1),
+                    g.index(x1 + 2, y1 + 2),
+                    g.index(x1 + 1, y1 + 2),
+                    g.index(x1, y1 + 2),
+                    g.index(x1 - 1, y1 + 2),
+                    g.index(x1 - 2, y1 + 2),
+                    g.index(x1 - 2, y1 + 1),
+                    g.index(x1 - 2, y1),
+                    g.index(x1 - 2, y1 - 1),
+                    g.index(x1 - 2, y1 - 2),
+                    g.index(x1 - 1, y1 - 2),
+                    g.index(x1, y1 - 2),
+                    g.index(x1 + 1, y1 - 2),
+                    g.index(x1 + 2, y1 - 2),
+                    g.index(x1 + 2, y1 - 1)
+                ]
+            );
         }
     }
 }
