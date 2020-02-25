@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.5")]
+#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.6")]
 
 //! Rust crate to translate between 1D indices and 2D coordinates with wrapping https://crates.io/crates/wrapping_coords2d
 //!
