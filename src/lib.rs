@@ -96,11 +96,15 @@ pub enum ErrorKind {
 #[derive(Debug, PartialEq)]
 pub struct WrappingCoords2d {
     /// Width of the grid; it has to be larger than 0.
-    w: i32,
+    w32: i32,
     /// Height of the grid; it has to be larger than 0.
-    h: i32,
+    h32: i32,
     /// Total number of cells in the grid; it has to be larger than 0 and smaller than std::i32::MAX.
-    sz: i32,
+    sz32: i32,
+    /// Width of the grid.
+    wu: usize,
+    /// Total number of cells in the grid.
+    szu: usize,
 }
 
 impl WrappingCoords2d {
@@ -113,9 +117,11 @@ impl WrappingCoords2d {
         if width > 0 && height > 0 {
             match width.checked_mul(height) {
                 Some(s) => Ok(WrappingCoords2d {
-                    w: width,
-                    h: height,
-                    sz: s,
+                    w32: width,
+                    h32: height,
+                    sz32: s,
+                    wu: width as usize,
+                    szu: s as usize,
                 }),
                 None => Err(ErrorKind::IndicesTooLarge),
             }
@@ -133,7 +139,7 @@ impl WrappingCoords2d {
     /// assert_eq!(w2d.width(), 10);
     /// ```
     pub fn width(&self) -> i32 {
-        self.w
+        self.w32
     }
     /// Returns the height of the grid.
     ///
@@ -145,7 +151,7 @@ impl WrappingCoords2d {
     /// assert_eq!(w2d.height(), 10);
     /// ```
     pub fn height(&self) -> i32 {
-        self.h
+        self.h32
     }
     /// Returns the total number of cells in the grid. Use this to initialize 1D containers.
     ///
@@ -157,7 +163,7 @@ impl WrappingCoords2d {
     /// assert_eq!(w2d.size(), 100 as usize);
     /// ```
     pub fn size(&self) -> usize {
-        self.sz as usize
+        self.szu
     }
     /// Returns the total number of cells in the grid as an `i32` number.
     ///
@@ -169,7 +175,7 @@ impl WrappingCoords2d {
     /// assert_eq!(w2d.size32(), 100);
     /// ```
     pub fn size32(&self) -> i32 {
-        self.sz
+        self.sz32
     }
     /// Returns the Euclidean modulo, a non-negative number.
     /// This operation is also available in the [`DivRem`](https://crates.io/crates/divrem) crate.
@@ -218,8 +224,8 @@ impl WrappingCoords2d {
     /// assert_eq!(w2d.index(1, -1), 91);
     /// ```
     pub fn index(&self, x: i32, y: i32) -> usize {
-        let mx = WrappingCoords2d::modulo(x, self.w);
-        let myw = WrappingCoords2d::modulo(y * self.w, self.sz);
+        let mx = WrappingCoords2d::modulo(x, self.w32);
+        let myw = WrappingCoords2d::modulo(y * self.w32, self.sz32);
         (myw + mx) as usize
     }
     /// Returns x and y coordinates based on an index into the 1D container.
@@ -238,7 +244,7 @@ impl WrappingCoords2d {
     /// assert_eq!(w2d.coords(91), (1, 9));
     pub fn coords(&self, idx: usize) -> (i32, i32) {
         let idx32 = idx as i32; // Always positive
-        (idx32 % self.w, idx32 / self.h)
+        (idx32 % self.w32, idx32 / self.h32)
     }
     /// Returns a new index into the grid based on a starting index `start_idx`, an x offset, and a y offset.
     /// `delta_x` and `delta_y` can be negative.
@@ -274,10 +280,10 @@ impl WrappingCoords2d {
     pub fn shift(&self, start_idx: usize, delta_x: i32, delta_y: i32) -> usize {
         // Note: -11 % 10 = -1
         let idx = start_idx as i32;
-        let x = idx % self.w; // Always positive
-        let new_x = WrappingCoords2d::modulo(x + delta_x, self.w); // Positive number
+        let x = idx % self.w32; // Always positive
+        let new_x = WrappingCoords2d::modulo(x + delta_x, self.w32); // Positive number
         let yw = idx - x; // yw: The y coordinate times the width; always positive
-        let new_yw = WrappingCoords2d::modulo(yw + delta_y * self.w, self.sz); // Positive number
+        let new_yw = WrappingCoords2d::modulo(yw + delta_y * self.w32, self.sz32); // Positive number
         (new_yw + new_x) as usize
     }
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 4 neighbors,
@@ -301,13 +307,13 @@ impl WrappingCoords2d {
     pub fn neighbors4(&self, start_idx: usize) -> std::vec::Vec<usize> {
         // Note: -11 % 10 = -1
         let idx = start_idx as i32;
-        let x = idx % self.w; // Always positive
+        let x = idx % self.w32; // Always positive
         let yw = idx - x; // yw: The y coordinate times the width; always positive
         let mut result32 = vec![x; 4];
-        result32[0] = (x + 1) % self.w + yw; // Neighbor to the right; modulo is always positive
-        result32[1] = (idx + self.w) % self.sz; // Neighbor above; modulo is always positive
-        result32[2] = WrappingCoords2d::modulo(x - 1, self.w) + yw; // Neighbor to the left
-        result32[3] = WrappingCoords2d::modulo(idx - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[0] = (x + 1) % self.w32 + yw; // Neighbor to the right; modulo is always positive
+        result32[1] = (idx + self.w32) % self.sz32; // Neighbor above; modulo is always positive
+        result32[2] = WrappingCoords2d::modulo(x - 1, self.w32) + yw; // Neighbor to the left
+        result32[3] = WrappingCoords2d::modulo(idx - self.w32, self.sz32); // Neighbor below; modulo is always positive
         result32.into_iter().map(|idx| idx as usize).collect()
     }
     /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 4 neighbors,
@@ -348,18 +354,18 @@ impl WrappingCoords2d {
     pub fn neighbors8(&self, start_idx: usize) -> std::vec::Vec<usize> {
         // Note: -11 % 10 = -1
         let idx = start_idx as i32;
-        let x = idx % self.w; // Always positive
+        let x = idx % self.w32; // Always positive
         let yw = idx - x; // yw: The y coordinate times the width; always positive
-        let idxr1 = (x + 1) % self.w + yw; // Index of the first neighbor, the one to the right; modulo is always positive
-        let idxl1 = WrappingCoords2d::modulo(x - 1, self.w) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
+        let idxr1 = (x + 1) % self.w32 + yw; // Index of the first neighbor, the one to the right; modulo is always positive
+        let idxl1 = WrappingCoords2d::modulo(x - 1, self.w32) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
         let mut result32 = vec![idxr1; 8];
-        result32[1] = (idxr1 + self.w) % self.sz; // Neighbor above; modulo is always positive
-        result32[2] = (idx + self.w) % self.sz; // Neighbor above; modulo is always positive
-        result32[3] = (idxl1 + self.w) % self.sz; // Neighbor above; modulo is always positive
+        result32[1] = (idxr1 + self.w32) % self.sz32; // Neighbor above; modulo is always positive
+        result32[2] = (idx + self.w32) % self.sz32; // Neighbor above; modulo is always positive
+        result32[3] = (idxl1 + self.w32) % self.sz32; // Neighbor above; modulo is always positive
         result32[4] = idxl1;
-        result32[5] = WrappingCoords2d::modulo(idxl1 - self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[6] = WrappingCoords2d::modulo(idx - self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[7] = WrappingCoords2d::modulo(idxr1 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[5] = WrappingCoords2d::modulo(idxl1 - self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[6] = WrappingCoords2d::modulo(idx - self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[7] = WrappingCoords2d::modulo(idxr1 - self.w32, self.sz32); // Neighbor below; modulo is always positive
         result32.into_iter().map(|idx| idx as usize).collect()
     }
     /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 8 neighbors,
@@ -400,28 +406,28 @@ impl WrappingCoords2d {
     pub fn neighbors16(&self, start_idx: usize) -> std::vec::Vec<usize> {
         // Note: -11 % 10 = -1
         let idx = start_idx as i32;
-        let x = idx % self.w; // Always positive
+        let x = idx % self.w32; // Always positive
         let yw = idx - x; // yw: The y coordinate times the width; always positive
-        let idxr2 = (x + 2) % self.w + yw; // Index of the first neighbor, the one to the right; modulo is always positive
-        let idxr1 = (x + 1) % self.w + yw; // Index of the first neighbor, the one to the right; modulo is always positive
-        let idxl1 = WrappingCoords2d::modulo(x - 1, self.w) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
-        let idxl2 = WrappingCoords2d::modulo(x - 2, self.w) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
+        let idxr2 = (x + 2) % self.w32 + yw; // Index of the first neighbor, the one to the right; modulo is always positive
+        let idxr1 = (x + 1) % self.w32 + yw; // Index of the first neighbor, the one to the right; modulo is always positive
+        let idxl1 = WrappingCoords2d::modulo(x - 1, self.w32) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
+        let idxl2 = WrappingCoords2d::modulo(x - 2, self.w32) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
         let mut result32 = vec![idxr2; 16];
-        result32[1] = (idxr2 + self.w) % self.sz;
-        result32[2] = (idxr2 + 2 * self.w) % self.sz;
-        result32[3] = (idxr1 + 2 * self.w) % self.sz;
-        result32[4] = (idx + 2 * self.w) % self.sz;
-        result32[5] = (idxl1 + 2 * self.w) % self.sz;
-        result32[6] = (idxl2 + 2 * self.w) % self.sz;
-        result32[7] = (idxl2 + self.w) % self.sz;
+        result32[1] = (idxr2 + self.w32) % self.sz32;
+        result32[2] = (idxr2 + 2 * self.w32) % self.sz32;
+        result32[3] = (idxr1 + 2 * self.w32) % self.sz32;
+        result32[4] = (idx + 2 * self.w32) % self.sz32;
+        result32[5] = (idxl1 + 2 * self.w32) % self.sz32;
+        result32[6] = (idxl2 + 2 * self.w32) % self.sz32;
+        result32[7] = (idxl2 + self.w32) % self.sz32;
         result32[8] = idxl2;
-        result32[9] = WrappingCoords2d::modulo(idxl2 - self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[10] = WrappingCoords2d::modulo(idxl2 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[11] = WrappingCoords2d::modulo(idxl1 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[12] = WrappingCoords2d::modulo(idx - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[13] = WrappingCoords2d::modulo(idxr1 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[14] = WrappingCoords2d::modulo(idxr2 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[15] = WrappingCoords2d::modulo(idxr2 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[9] = WrappingCoords2d::modulo(idxl2 - self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[10] = WrappingCoords2d::modulo(idxl2 - 2 * self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[11] = WrappingCoords2d::modulo(idxl1 - 2 * self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[12] = WrappingCoords2d::modulo(idx - 2 * self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[13] = WrappingCoords2d::modulo(idxr1 - 2 * self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[14] = WrappingCoords2d::modulo(idxr2 - 2 * self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[15] = WrappingCoords2d::modulo(idxr2 - self.w32, self.sz32); // Neighbor below; modulo is always positive
         result32.into_iter().map(|idx| idx as usize).collect()
     }
     /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 16 second neighbors,
@@ -462,36 +468,36 @@ impl WrappingCoords2d {
     pub fn neighbors24(&self, start_idx: usize) -> std::vec::Vec<usize> {
         // Note: -11 % 10 = -1
         let idx = start_idx as i32;
-        let x = idx % self.w; // Always positive
+        let x = idx % self.w32; // Always positive
         let yw = idx - x; // yw: The y coordinate times the width; always positive
-        let idxr2 = (x + 2) % self.w + yw; // Index of the first neighbor, the one to the right; modulo is always positive
-        let idxr1 = (x + 1) % self.w + yw; // Index of the first neighbor, the one to the right; modulo is always positive
-        let idxl1 = WrappingCoords2d::modulo(x - 1, self.w) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
-        let idxl2 = WrappingCoords2d::modulo(x - 2, self.w) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
+        let idxr2 = (x + 2) % self.w32 + yw; // Index of the first neighbor, the one to the right; modulo is always positive
+        let idxr1 = (x + 1) % self.w32 + yw; // Index of the first neighbor, the one to the right; modulo is always positive
+        let idxl1 = WrappingCoords2d::modulo(x - 1, self.w32) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
+        let idxl2 = WrappingCoords2d::modulo(x - 2, self.w32) + yw; // Index of the fourth neighbor, the one to the left; modulo is always positive
         let mut result32 = vec![idxr1; 24];
-        result32[1] = (idxr1 + self.w) % self.sz; // Neighbor above; modulo is always positive
-        result32[2] = (idx + self.w) % self.sz; // Neighbor above; modulo is always positive
-        result32[3] = (idxl1 + self.w) % self.sz; // Neighbor above; modulo is always positive
+        result32[1] = (idxr1 + self.w32) % self.sz32; // Neighbor above; modulo is always positive
+        result32[2] = (idx + self.w32) % self.sz32; // Neighbor above; modulo is always positive
+        result32[3] = (idxl1 + self.w32) % self.sz32; // Neighbor above; modulo is always positive
         result32[4] = idxl1;
-        result32[5] = WrappingCoords2d::modulo(idxl1 - self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[6] = WrappingCoords2d::modulo(idx - self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[7] = WrappingCoords2d::modulo(idxr1 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[5] = WrappingCoords2d::modulo(idxl1 - self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[6] = WrappingCoords2d::modulo(idx - self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[7] = WrappingCoords2d::modulo(idxr1 - self.w32, self.sz32); // Neighbor below; modulo is always positive
         result32[8] = idxr2;
-        result32[9] = (idxr2 + self.w) % self.sz;
-        result32[10] = (idxr2 + 2 * self.w) % self.sz;
-        result32[11] = (idxr1 + 2 * self.w) % self.sz;
-        result32[12] = (idx + 2 * self.w) % self.sz;
-        result32[13] = (idxl1 + 2 * self.w) % self.sz;
-        result32[14] = (idxl2 + 2 * self.w) % self.sz;
-        result32[15] = (idxl2 + self.w) % self.sz;
+        result32[9] = (idxr2 + self.w32) % self.sz32;
+        result32[10] = (idxr2 + 2 * self.w32) % self.sz32;
+        result32[11] = (idxr1 + 2 * self.w32) % self.sz32;
+        result32[12] = (idx + 2 * self.w32) % self.sz32;
+        result32[13] = (idxl1 + 2 * self.w32) % self.sz32;
+        result32[14] = (idxl2 + 2 * self.w32) % self.sz32;
+        result32[15] = (idxl2 + self.w32) % self.sz32;
         result32[16] = idxl2;
-        result32[17] = WrappingCoords2d::modulo(idxl2 - self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[18] = WrappingCoords2d::modulo(idxl2 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[19] = WrappingCoords2d::modulo(idxl1 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[20] = WrappingCoords2d::modulo(idx - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[21] = WrappingCoords2d::modulo(idxr1 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[22] = WrappingCoords2d::modulo(idxr2 - 2 * self.w, self.sz); // Neighbor below; modulo is always positive
-        result32[23] = WrappingCoords2d::modulo(idxr2 - self.w, self.sz); // Neighbor below; modulo is always positive
+        result32[17] = WrappingCoords2d::modulo(idxl2 - self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[18] = WrappingCoords2d::modulo(idxl2 - 2 * self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[19] = WrappingCoords2d::modulo(idxl1 - 2 * self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[20] = WrappingCoords2d::modulo(idx - 2 * self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[21] = WrappingCoords2d::modulo(idxr1 - 2 * self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[22] = WrappingCoords2d::modulo(idxr2 - 2 * self.w32, self.sz32); // Neighbor below; modulo is always positive
+        result32[23] = WrappingCoords2d::modulo(idxr2 - self.w32, self.sz32); // Neighbor below; modulo is always positive
         result32.into_iter().map(|idx| idx as usize).collect()
     }
     /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 24 nearest neighbors.
@@ -598,15 +604,15 @@ mod tests {
             WrappingCoords2d::new(1, 10000000).unwrap(),
         ];
         for g in grids {
-            assert_eq!(g.shift(0, 1, 0), 1 % g.w as usize);
-            assert_eq!(g.shift(0, 1, 20), ((20 * g.w + (1 % g.w)) % g.sz) as usize);
+            assert_eq!(g.shift(0, 1, 0), 1 % g.wu);
+            assert_eq!(g.shift(0, 1, 20), (20 * g.wu + (1 % g.wu)) % g.szu);
             assert_eq!(
                 g.shift(0, 20, 20),
-                ((20 * g.w + (20 % g.w)) % g.sz) as usize
+                (20 * g.wu + (20 % g.wu)) % g.szu
             );
             assert_eq!(
                 g.shift(0, 200000, 200000),
-                ((200000 * g.w + (200000 % g.w)) % g.sz) as usize
+                (200000 * g.wu + (200000 % g.wu)) % g.szu
             );
             let x1 = 10000;
             let y1 = 10000;
