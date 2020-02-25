@@ -333,6 +333,85 @@ impl WrappingCoords2d {
     pub fn neighbors4xy(&self, start_x: i32, start_y: i32) -> std::vec::Vec<usize> {
         self.neighbors4(self.index(start_x, start_y))
     }
+    /// Calls a closure `f` on each cell of the grid. Each call acts on the cell and the neighbors defined by `x_shifts` and `yw_shifts`.
+    /// This function remains private because `neighbor_shifts` has value restrictions. These coordinates must have
+    /// the form (x + w, wy + sz) which elliminates the need to convert between usize and i32.
+    /// Despite the increased RAM bandwidth usage, this function keeps `usize` operations to a minimum. `usize` is necessary to prevent
+    /// overflow in very large worlds and 32 bit environments.
+    ///
+    /// # Safety
+    ///
+    /// This function does not check that `x_shifts` and `yw_shifts` have the same length.
+    fn for_each<F>(
+        &self,
+        mut f: F,
+        mut x_shifts: std::vec::Vec<usize>,
+        mut yw_shifts: std::vec::Vec<usize>,
+    ) where
+        F: FnMut(usize, &std::vec::Vec<usize>),
+    {
+        // Reusing`x_shifts` and `yw_shifts`
+        let x_shifts0 = x_shifts.clone();
+        let mut x = x_shifts.clone();
+        let mut yw = yw_shifts.clone();
+        let mut neighbors = vec![0; x_shifts.len()];
+        let mut i = 0;
+        loop {
+            for j in 0..neighbors.len() {
+                x[j] = x_shifts[j] % self.wu;
+                yw[j] = yw_shifts[j] % self.szu;
+                neighbors[j] = yw[j] + x[j];
+            }
+            // Evaluation
+            f(i, &neighbors);
+            // Next iteration
+            i += 1;
+            if i == self.szu {
+                break;
+            }
+            // Locate the neighbors
+            if i % self.wu == 0 {
+                x_shifts = x_shifts0.clone();
+                for j in yw_shifts.iter_mut() {
+                    *j += self.wu;
+                }
+            } else {
+                for j in x_shifts.iter_mut() {
+                    *j += 1;
+                }
+            }
+        }
+    }
+    /// Calls a closure `f` on each cell of the grid. Each call acts on the cell and its 4 neighbors,
+    /// the so-called von Neumann neighborhood or 4-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the neighbor to the right.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// w2d.for_each4(|i, neighbor| {
+    ///     assert_eq!(neighbor[0], w2d.shift(i, 1, 0));
+    ///     assert_eq!(neighbor[1], w2d.shift(i, 0, 1));
+    ///     assert_eq!(neighbor[2], w2d.shift(i, -1, 0));
+    ///     assert_eq!(neighbor[3], w2d.shift(i, 0, -1));
+    /// });
+    /// ```
+    pub fn for_each4<F>(&self, f: F)
+    where
+        F: FnMut(usize, &std::vec::Vec<usize>),
+    {
+        let wp1 = self.wu + 1;
+        let wm1 = self.wu - 1;
+        let spw = self.szu + self.wu;
+        let smw = self.szu - self.wu;
+        self.for_each(
+            f,
+            vec![wp1, self.wu, wm1, self.wu],
+            vec![self.szu, spw, self.szu, smw],
+        )
+    }
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 8 neighbors,
     /// the so-called Moore neighborhood or 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
     /// starting from the neighbor to the right.
@@ -385,9 +464,43 @@ impl WrappingCoords2d {
     pub fn neighbors8xy(&self, start_x: i32, start_y: i32) -> std::vec::Vec<usize> {
         self.neighbors8(self.index(start_x, start_y))
     }
+    /// Calls a closure `f` on each cell of the grid. Each call acts on the cell and its 8 neighbors,
+    /// the so-called Moore neighborhood or 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the neighbor to the right.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// w2d.for_each8(|i, neighbor| {
+    ///     assert_eq!(neighbor[0], w2d.shift(i, 1, 0));
+    ///     assert_eq!(neighbor[1], w2d.shift(i, 1, 1));
+    ///     assert_eq!(neighbor[2], w2d.shift(i, 0, 1));
+    ///     assert_eq!(neighbor[3], w2d.shift(i, -1, 1));
+    ///     assert_eq!(neighbor[4], w2d.shift(i, -1, 0));
+    ///     assert_eq!(neighbor[5], w2d.shift(i, -1, -1));
+    ///     assert_eq!(neighbor[6], w2d.shift(i, 0, -1));
+    ///     assert_eq!(neighbor[7], w2d.shift(i, 1, -1));
+    /// });
+    /// ```
+    pub fn for_each8<F>(&self, f: F)
+    where
+        F: FnMut(usize, &std::vec::Vec<usize>),
+    {
+        let wp1 = self.wu + 1;
+        let wm1 = self.wu - 1;
+        let spw = self.szu + self.wu;
+        let smw = self.szu - self.wu;
+        self.for_each(
+            f,
+            vec![wp1, wp1, self.wu, wm1, wm1, wm1, self.wu, wp1],
+            vec![self.szu, spw, spw, spw, self.szu, smw, smw, smw],
+        )
+    }
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 16 second neighbors,
     /// which are adjacent to the cell's 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
-    /// starting from the second neighbor located two cells to the right.
+    /// starting from the second cell to the right.
     ///
     /// # Safety
     ///
@@ -432,7 +545,7 @@ impl WrappingCoords2d {
     }
     /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 16 second neighbors,
     /// which are adjacent to the cell's 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
-    /// starting from the second neighbor located two cells to the right.
+    /// starting from the second cell to the right.
     ///
     /// # Examples
     ///
@@ -447,9 +560,62 @@ impl WrappingCoords2d {
     pub fn neighbors16xy(&self, start_x: i32, start_y: i32) -> std::vec::Vec<usize> {
         self.neighbors16(self.index(start_x, start_y))
     }
+    /// Calls a closure `f` on each cell of the grid. Each call acts on the cell and its 16 second neighbors,
+    /// which are adjacent to the cell's 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the second cell to the right.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// w2d.for_each16(|i, neighbor| {
+    ///     assert_eq!(neighbor[0], w2d.shift(i, 2, 0));
+    ///     assert_eq!(neighbor[1], w2d.shift(i, 2, 1));
+    ///     assert_eq!(neighbor[2], w2d.shift(i, 2, 2));
+    ///     assert_eq!(neighbor[3], w2d.shift(i, 1, 2));
+    ///     assert_eq!(neighbor[4], w2d.shift(i, 0, 2));
+    ///     assert_eq!(neighbor[5], w2d.shift(i, -1, 2));
+    ///     assert_eq!(neighbor[6], w2d.shift(i, -2, 2));
+    ///     assert_eq!(neighbor[7], w2d.shift(i, -2, 1));
+    ///     assert_eq!(neighbor[8], w2d.shift(i, -2, 0));
+    ///     assert_eq!(neighbor[9], w2d.shift(i, -2, -1));
+    ///     assert_eq!(neighbor[10], w2d.shift(i, -2, -2));
+    ///     assert_eq!(neighbor[11], w2d.shift(i, -1, -2));
+    ///     assert_eq!(neighbor[12], w2d.shift(i, 0, -2));
+    ///     assert_eq!(neighbor[13], w2d.shift(i, 1, -2));
+    ///     assert_eq!(neighbor[14], w2d.shift(i, 2, -2));
+    ///     assert_eq!(neighbor[15], w2d.shift(i, 2, -1));
+    /// });
+    /// ```
+    pub fn for_each16<F>(&self, f: F)
+    where
+        F: FnMut(usize, &std::vec::Vec<usize>),
+    {
+        let wp2 = self.wu + 2;
+        let wp1 = self.wu + 1;
+        let wm1 = self.wu - 1;
+        let wm2 = self.wu - 2;
+        let w2 = 2 * self.wu;
+        let sp2 = self.szu + w2;
+        let spw = self.szu + self.wu;
+        let smw = self.szu - self.wu;
+        let sm2 = self.szu - w2;
+        self.for_each(
+            f,
+            vec![
+                wp2, wp2, wp2, wp1, self.wu, wm1, wm2, wm2, wm2, wm2, wm2, wm1, self.wu, wp1, wp2,
+                wp2,
+            ],
+            vec![
+                self.szu, spw, sp2, sp2, sp2, sp2, sp2, spw, self.szu, smw, sm2, sm2, sm2, sm2,
+                sm2, smw,
+            ],
+        )
+    }
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 24 nearest neighbors.
     /// The indices are ordered in 2D, counter-clockwise, starting with the cell to the right, going through the
-    /// Moore neighborhood first, and then going through the second neighbors.
+    /// Moore neighborhood first, and then going through the second cell to the right, and ending with the second neighbors.
     ///
     /// # Safety
     ///
@@ -502,7 +668,7 @@ impl WrappingCoords2d {
     }
     /// This function takes the cell given by `(start_x, start_y)` and returns a vector of the indices to its 24 nearest neighbors.
     /// The indices are ordered in 2D, counter-clockwise, starting with the cell to the right, going through the
-    /// Moore neighborhood first, and then going through the second neighbors.
+    /// Moore neighborhood first, and then going through the second cell to the right, and ending with the second neighbors.
     ///
     /// # Examples
     ///
@@ -516,6 +682,67 @@ impl WrappingCoords2d {
     /// ```
     pub fn neighbors24xy(&self, start_x: i32, start_y: i32) -> std::vec::Vec<usize> {
         self.neighbors24(self.index(start_x, start_y))
+    }
+    /// Calls a closure `f` on each cell of the grid. Each call acts on the cell and its 24 nearest neighbors.
+    /// The indices are ordered in 2D, counter-clockwise, starting with the cell to the right, going through the
+    /// Moore neighborhood first, and then going through the second cell to the right, and ending with the second neighbors.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// w2d.for_each24(|i, neighbor| {
+    ///     assert_eq!(neighbor[0], w2d.shift(i, 1, 0));
+    ///     assert_eq!(neighbor[1], w2d.shift(i, 1, 1));
+    ///     assert_eq!(neighbor[2], w2d.shift(i, 0, 1));
+    ///     assert_eq!(neighbor[3], w2d.shift(i, -1, 1));
+    ///     assert_eq!(neighbor[4], w2d.shift(i, -1, 0));
+    ///     assert_eq!(neighbor[5], w2d.shift(i, -1, -1));
+    ///     assert_eq!(neighbor[6], w2d.shift(i, 0, -1));
+    ///     assert_eq!(neighbor[7], w2d.shift(i, 1, -1));
+    ///     assert_eq!(neighbor[8], w2d.shift(i, 2, 0));
+    ///     assert_eq!(neighbor[9], w2d.shift(i, 2, 1));
+    ///     assert_eq!(neighbor[10], w2d.shift(i, 2, 2));
+    ///     assert_eq!(neighbor[11], w2d.shift(i, 1, 2));
+    ///     assert_eq!(neighbor[12], w2d.shift(i, 0, 2));
+    ///     assert_eq!(neighbor[13], w2d.shift(i, -1, 2));
+    ///     assert_eq!(neighbor[14], w2d.shift(i, -2, 2));
+    ///     assert_eq!(neighbor[15], w2d.shift(i, -2, 1));
+    ///     assert_eq!(neighbor[16], w2d.shift(i, -2, 0));
+    ///     assert_eq!(neighbor[17], w2d.shift(i, -2, -1));
+    ///     assert_eq!(neighbor[18], w2d.shift(i, -2, -2));
+    ///     assert_eq!(neighbor[19], w2d.shift(i, -1, -2));
+    ///     assert_eq!(neighbor[20], w2d.shift(i, 0, -2));
+    ///     assert_eq!(neighbor[21], w2d.shift(i, 1, -2));
+    ///     assert_eq!(neighbor[22], w2d.shift(i, 2, -2));
+    ///     assert_eq!(neighbor[23], w2d.shift(i, 2, -1));
+    /// });
+    /// ```
+    pub fn for_each24<F>(&self, f: F)
+    where
+        F: FnMut(usize, &std::vec::Vec<usize>),
+    {
+        let wp2 = self.wu + 2;
+        let wp1 = self.wu + 1;
+        let wm1 = self.wu - 1;
+        let wm2 = self.wu - 2;
+        let w2 = 2 * self.wu;
+        let sp2 = self.szu + w2;
+        let spw = self.szu + self.wu;
+        let smw = self.szu - self.wu;
+        let sm2 = self.szu - w2;
+        self.for_each(
+            f,
+            vec![
+                wp1, wp1, self.wu, wm1, wm1, wm1, self.wu, wp1, wp2, wp2, wp2, wp1, self.wu, wm1,
+                wm2, wm2, wm2, wm2, wm2, wm1, self.wu, wp1, wp2, wp2,
+            ],
+            vec![
+                self.szu, spw, spw, spw, self.szu, smw, smw, smw, self.szu, spw, sp2, sp2, sp2,
+                sp2, sp2, spw, self.szu, smw, sm2, sm2, sm2, sm2, sm2, smw,
+            ],
+        )
     }
 }
 
@@ -606,10 +833,7 @@ mod tests {
         for g in grids {
             assert_eq!(g.shift(0, 1, 0), 1 % g.wu);
             assert_eq!(g.shift(0, 1, 20), (20 * g.wu + (1 % g.wu)) % g.szu);
-            assert_eq!(
-                g.shift(0, 20, 20),
-                (20 * g.wu + (20 % g.wu)) % g.szu
-            );
+            assert_eq!(g.shift(0, 20, 20), (20 * g.wu + (20 % g.wu)) % g.szu);
             assert_eq!(
                 g.shift(0, 200000, 200000),
                 (200000 * g.wu + (200000 % g.wu)) % g.szu
