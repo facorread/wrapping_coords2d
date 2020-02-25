@@ -391,12 +391,15 @@ impl WrappingCoords2d {
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// let mut calls_counter = 0;
     /// w2d.for_each4(|this_cell_index, neighbors| {
     ///     assert_eq!(neighbors[0], w2d.shift(this_cell_index, 1, 0));
     ///     assert_eq!(neighbors[1], w2d.shift(this_cell_index, 0, 1));
     ///     assert_eq!(neighbors[2], w2d.shift(this_cell_index, -1, 0));
     ///     assert_eq!(neighbors[3], w2d.shift(this_cell_index, 0, -1));
+    ///     calls_counter += 1;
     /// });
+    /// assert_eq!(calls_counter, w2d.size());
     /// ```
     pub fn for_each4<F>(&self, f: F)
     where
@@ -421,9 +424,12 @@ impl WrappingCoords2d {
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// let mut calls_counter = 0;
     /// w2d.for_each_pair4(|this_cell_index, neighbor_index| {
     ///     assert!(this_cell_index != neighbor_index);
+    ///     calls_counter += 1;
     /// });
+    /// assert_eq!(calls_counter, 4 * w2d.size());
     /// ```
     pub fn for_each_pair4<F>(&self, mut f: F)
     where
@@ -496,6 +502,7 @@ impl WrappingCoords2d {
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// let mut calls_counter = 0;
     /// w2d.for_each8(|this_cell_index, neighbors| {
     ///     assert_eq!(neighbors[0], w2d.shift(this_cell_index, 1, 0));
     ///     assert_eq!(neighbors[1], w2d.shift(this_cell_index, 1, 1));
@@ -505,7 +512,9 @@ impl WrappingCoords2d {
     ///     assert_eq!(neighbors[5], w2d.shift(this_cell_index, -1, -1));
     ///     assert_eq!(neighbors[6], w2d.shift(this_cell_index, 0, -1));
     ///     assert_eq!(neighbors[7], w2d.shift(this_cell_index, 1, -1));
+    ///     calls_counter += 1;
     /// });
+    /// assert_eq!(calls_counter, w2d.size());
     /// ```
     pub fn for_each8<F>(&self, f: F)
     where
@@ -530,9 +539,12 @@ impl WrappingCoords2d {
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// let mut calls_counter = 0;
     /// w2d.for_each_pair8(|this_cell_index, neighbor_index| {
     ///     assert!(this_cell_index != neighbor_index);
+    ///     calls_counter += 1;
     /// });
+    /// assert_eq!(calls_counter, 8 * w2d.size());
     /// ```
     pub fn for_each_pair8<F>(&self, mut f: F)
     where
@@ -615,6 +627,7 @@ impl WrappingCoords2d {
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// let mut calls_counter = 0;
     /// w2d.for_each16(|this_cell_index, neighbors| {
     ///     assert_eq!(neighbors[0], w2d.shift(this_cell_index, 2, 0));
     ///     assert_eq!(neighbors[1], w2d.shift(this_cell_index, 2, 1));
@@ -632,7 +645,9 @@ impl WrappingCoords2d {
     ///     assert_eq!(neighbors[13], w2d.shift(this_cell_index, 1, -2));
     ///     assert_eq!(neighbors[14], w2d.shift(this_cell_index, 2, -2));
     ///     assert_eq!(neighbors[15], w2d.shift(this_cell_index, 2, -1));
+    ///     calls_counter += 1;
     /// });
+    /// assert_eq!(calls_counter, w2d.size());
     /// ```
     pub fn for_each16<F>(&self, f: F)
     where
@@ -668,9 +683,12 @@ impl WrappingCoords2d {
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// let mut calls_counter = 0;
     /// w2d.for_each_pair16(|this_cell_index, neighbor_index| {
     ///     assert!(this_cell_index != neighbor_index);
+    ///     calls_counter += 1;
     /// });
+    /// assert_eq!(calls_counter, 16 * w2d.size());
     /// ```
     pub fn for_each_pair16<F>(&self, mut f: F)
     where
@@ -761,6 +779,7 @@ impl WrappingCoords2d {
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// let mut calls_counter = 0;
     /// w2d.for_each24(|this_cell_index, neighbors| {
     ///     assert_eq!(neighbors[0], w2d.shift(this_cell_index, 1, 0));
     ///     assert_eq!(neighbors[1], w2d.shift(this_cell_index, 1, 1));
@@ -786,7 +805,9 @@ impl WrappingCoords2d {
     ///     assert_eq!(neighbors[21], w2d.shift(this_cell_index, 1, -2));
     ///     assert_eq!(neighbors[22], w2d.shift(this_cell_index, 2, -2));
     ///     assert_eq!(neighbors[23], w2d.shift(this_cell_index, 2, -1));
+    ///     calls_counter += 1;
     /// });
+    /// assert_eq!(calls_counter, w2d.size());
     /// ```
     pub fn for_each24<F>(&self, f: F)
     where
@@ -822,9 +843,12 @@ impl WrappingCoords2d {
     /// ```
     /// use wrapping_coords2d::WrappingCoords2d;
     /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// let mut calls_counter = 0;
     /// w2d.for_each_pair24(|this_cell_index, neighbor_index| {
     ///     assert!(this_cell_index != neighbor_index);
+    ///     calls_counter += 1;
     /// });
+    /// assert_eq!(calls_counter, 24 * w2d.size());
     /// ```
     pub fn for_each_pair24<F>(&self, mut f: F)
     where
