@@ -292,7 +292,7 @@ impl WrappingCoords2d {
     ///
     /// # Safety
     ///
-    /// This function does not check that `start_index` is a valid index. However, it returns a valid index in the range [0, size).
+    /// This function does not check that `start_index` is a valid index. However, it returns valid indices in the range [0, size).
     ///
     /// # Examples
     ///
@@ -447,7 +447,7 @@ impl WrappingCoords2d {
     ///
     /// # Safety
     ///
-    /// This function does not check that `start_index` is a valid index. However, it returns a valid index in the range [0, size).
+    /// This function does not check that `start_index` is a valid index. However, it returns valid indices in the range [0, size).
     ///
     /// # Examples
     ///
@@ -562,7 +562,7 @@ impl WrappingCoords2d {
     ///
     /// # Safety
     ///
-    /// This function does not check that `start_index` is a valid index. However, it returns a valid index in the range [0, size).
+    /// This function does not check that `start_index` is a valid index. However, it returns valid indices in the range [0, size).
     ///
     /// # Examples
     ///
@@ -706,7 +706,7 @@ impl WrappingCoords2d {
     ///
     /// # Safety
     ///
-    /// This function does not check that `start_index` is a valid index. However, it returns a valid index in the range [0, size).
+    /// This function does not check that `start_index` is a valid index. However, it returns valid indices in the range [0, size).
     ///
     /// # Examples
     ///
