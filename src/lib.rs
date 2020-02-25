@@ -412,6 +412,29 @@ impl WrappingCoords2d {
             vec![self.szu, spw, self.szu, smw],
         )
     }
+    /// Calls a closure `f` on each cell of the grid. Each call acts on the cell and one of its 4 neighbors,
+    /// the so-called von Neumann neighborhood or 4-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the neighbor to the right.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// w2d.for_each_pair4(|this_cell_index, neighbor_index| {
+    ///     assert!(this_cell_index != neighbor_index);
+    /// });
+    /// ```
+    pub fn for_each_pair4<F>(&self, mut f: F)
+    where
+        F: FnMut(usize, usize),
+    {
+        self.for_each4(|this_cell_index, neighbors| {
+            for &neighbor_index in neighbors {
+                f(this_cell_index, neighbor_index);
+            }
+        });
+    }
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 8 neighbors,
     /// the so-called Moore neighborhood or 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
     /// starting from the neighbor to the right.
@@ -497,6 +520,29 @@ impl WrappingCoords2d {
             vec![wp1, wp1, self.wu, wm1, wm1, wm1, self.wu, wp1],
             vec![self.szu, spw, spw, spw, self.szu, smw, smw, smw],
         )
+    }
+    /// Calls a closure `f` on each cell of the grid. Each call acts on the cell and one of its 8 neighbors,
+    /// the so-called Moore neighborhood or 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the neighbor to the right.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// w2d.for_each_pair8(|this_cell_index, neighbor_index| {
+    ///     assert!(this_cell_index != neighbor_index);
+    /// });
+    /// ```
+    pub fn for_each_pair8<F>(&self, mut f: F)
+    where
+        F: FnMut(usize, usize),
+    {
+        self.for_each8(|this_cell_index, neighbors| {
+            for &neighbor_index in neighbors {
+                f(this_cell_index, neighbor_index);
+            }
+        });
     }
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 16 second neighbors,
     /// which are adjacent to the cell's 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
@@ -612,6 +658,29 @@ impl WrappingCoords2d {
                 sm2, smw,
             ],
         )
+    }
+    /// Calls a closure `f` on each cell of the grid. Each call acts on the cell and one of its 16 second neighbors,
+    /// which are adjacent to the cell's 8-neighborhood. The indices are ordered in 2D, counter-clockwise,
+    /// starting from the second cell to the right.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// w2d.for_each_pair16(|this_cell_index, neighbor_index| {
+    ///     assert!(this_cell_index != neighbor_index);
+    /// });
+    /// ```
+    pub fn for_each_pair16<F>(&self, mut f: F)
+    where
+        F: FnMut(usize, usize),
+    {
+        self.for_each16(|this_cell_index, neighbors| {
+            for &neighbor_index in neighbors {
+                f(this_cell_index, neighbor_index);
+            }
+        });
     }
     /// This function takes the cell given by `start_idx` and returns a vector of the indices to its 24 nearest neighbors.
     /// The indices are ordered in 2D, counter-clockwise, starting with the cell to the right, going through the
@@ -743,6 +812,29 @@ impl WrappingCoords2d {
                 sp2, sp2, spw, self.szu, smw, sm2, sm2, sm2, sm2, sm2, smw,
             ],
         )
+    }
+    /// Calls a closure `f` on each cell of the grid. Each call acts on the cell and one of its 24 nearest neighbors.
+    /// The indices are ordered in 2D, counter-clockwise, starting with the cell to the right, going through the
+    /// Moore neighborhood first, and then going through the second cell to the right, and ending with the second neighbors.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use wrapping_coords2d::WrappingCoords2d;
+    /// let w2d = WrappingCoords2d::new(10, 10).unwrap();
+    /// w2d.for_each_pair24(|this_cell_index, neighbor_index| {
+    ///     assert!(this_cell_index != neighbor_index);
+    /// });
+    /// ```
+    pub fn for_each_pair24<F>(&self, mut f: F)
+    where
+        F: FnMut(usize, usize),
+    {
+        self.for_each24(|this_cell_index, neighbors| {
+            for &neighbor_index in neighbors {
+                f(this_cell_index, neighbor_index);
+            }
+        });
     }
 }
 
