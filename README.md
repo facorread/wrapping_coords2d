@@ -1,5 +1,5 @@
 # wrapping_coords2d
-Rust crate to translate between 1D indices and 2D coordinates with wrapping https://crates.io/crates/wrapping_coords2d
+Rust crate to translate between 1D indices and 2D coordinates with wrapping.
 
 [![Crate](https://img.shields.io/crates/v/wrapping_coords2d.svg)](https://crates.io/crates/wrapping_coords2d)
 [![Downloads](https://img.shields.io/crates/d/wrapping_coords2d.svg)](https://crates.io/crates/wrapping_coords2d)
