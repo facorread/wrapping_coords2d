@@ -17,3 +17,7 @@ See more examples in the documentation for the [`wrapping_coords2d`](https://doc
 ## Why not create iterators to the neighbors of a cell?
 
 Indices make more sense than iterators in an ECS design. It's generally more idiomatic to use a `for` loop with indices than iterator chains. If a game world or a model landscape has several components, such as color, depth, and fertility, it makes sense to keep each component in its own vector. The simplest approach is to use indices on them. However, I am open to a pull request contributing code for iterators into neighbors.
+
+## Does this crate use any `unsafe` code?
+
+No.
