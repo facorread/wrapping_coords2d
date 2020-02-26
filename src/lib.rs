@@ -108,11 +108,19 @@ pub struct WrappingCoords2d {
 }
 
 impl WrappingCoords2d {
-    /// Constructs a new WrappingCoords2d representation.
+    /// Constructs a new WrappingCoords2d object.
     ///
     /// # Errors
     ///
-    /// Both `width` and `height` must be larger than 0. Also, their product must be smaller than `std::i32::MAX`.
+    /// Both `width` and `height` must be larger than 0. Also, their product must be smaller than `std::i32::MAX = 2147483647`.
+    /// Generally speaking, [`i32` is the fastest] integer type, even on 64-bit systems. `i32` is sufficient for a wide range
+    /// of agent-based models. You will need to modify the data type to accommodate larger landscapes.
+    ///
+    /// As an example, the largest square grid that a `WrappingCoords2d` object can accommodate has a size of `46340x46340` cells,
+    /// or approximately the square root of `std::i32::MAX`. For a property that needs an `i32` representation,
+    /// the program needs to allocate `std::i32::MAX * 4 = 8GiB` of RAM.
+    ///
+    /// [`i32` is the fastest]: https://doc.rust-lang.org/book/ch03-02-data-types.html#integer-types
     pub fn new(width: i32, height: i32) -> Result<WrappingCoords2d, ErrorKind> {
         if width > 0 && height > 0 {
             match width.checked_mul(height) {
