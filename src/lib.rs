@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.8")]
+#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.9")]
 
 //! Rust crate to translate between 1D indices and 2D coordinates with wrapping https://crates.io/crates/wrapping_coords2d
 //!
@@ -86,10 +86,21 @@
 /// Represents errors in the construction of a 2D grid.
 #[derive(Debug)]
 pub enum ErrorKind {
-    /// Either or both indices are less than 1.
-    IndicesLessThan1,
-    /// The product of both indices is larger than `std::i32::MAX`.
-    IndicesTooLarge,
+    /// `width` or `height` less than 1.
+    DimensionsLessThan1,
+    /// The product of `width` and `height` exceeds `std::i32::MAX`.
+    DimensionsTooLarge,
+}
+
+impl std::error::Error for ErrorKind {}
+
+impl std::fmt::Display for ErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self {
+            ErrorKind::DimensionsLessThan1 => write!(f, "width or height less than 1"),
+            ErrorKind::DimensionsTooLarge => write!(f, "the product of width and height exceeds std::i32::MAX = {}", std::i32::MAX),
+        }
+    }
 }
 
 /// Represents a 2D grid with wrapping.
@@ -131,10 +142,10 @@ impl WrappingCoords2d {
                     wu: width as usize,
                     szu: s as usize,
                 }),
-                None => Err(ErrorKind::IndicesTooLarge),
+                None => Err(ErrorKind::DimensionsTooLarge),
             }
         } else {
-            Err(ErrorKind::IndicesLessThan1)
+            Err(ErrorKind::DimensionsLessThan1)
         }
     }
     /// Returns the width of the grid.
