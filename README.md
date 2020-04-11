@@ -20,6 +20,6 @@ Indices make more sense than iterators in an ECS design. [It's generally more id
 
 [It's generally more idiomatic]: https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.for_each
 
-## Does this crate use any `unsafe` code?
+## Does this crate use the `unsafe` keyword?
 
 No.

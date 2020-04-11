@@ -2,7 +2,7 @@
 name = "wrapping_coords2d"
 version = "0.1.9" # remember to update html_root_url
 authors = ["Fabio A. Correa Duran <facorread@gmail.com>"]
-categories = ["caching", "memory-management"]
+categories = ["caching", "data-structures", "memory-management"]
 description = "Translate between 1D indices and 2D coordinates with wrapping"
 edition = "2018"
 exclude = [
