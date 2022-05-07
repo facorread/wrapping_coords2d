@@ -1,6 +1,6 @@
 /* WrappingCoords2d: Rust crate to translate between 1D indices and 2D coordinates with wrapping https://crates.io/crates/wrapping_coords2d
 
-    Copyright 2020 Fabio A. Correa Duran facorread@gmail.com
+    Copyright © 2020-2022 Fabio A. Correa Duran facorread@gmail.com
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
    limitations under the License.
 */
 
-#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.9")]
+#![doc(html_root_url = "https://docs.rs/wrapping_coords2d/0.1.10")]
 
 //! Rust crate to translate between 1D indices and 2D coordinates with wrapping https://crates.io/crates/wrapping_coords2d
 //!
